@@ -8,6 +8,9 @@ contract DAO {
     address owner;
     Token public token;
     uint256 public quorum;
+    uint256 public proposalCount;
+    mapping(uint256 => Proposal) public proposals;
+    mapping(address => mapping(uint256 => bool)) private votes;
 
     struct Proposal {
         uint256 id;
@@ -18,12 +21,9 @@ contract DAO {
         bool finalized;
     }
 
-    uint256 public proposalCount;
-    mapping(uint256 => Proposal) public proposals;
-    mapping(address => mapping(uint256 => bool)) private votes;
-
     event Propose(uint256 id, uint256 amount, address recipient, address creator);
     event Vote(uint256 id, address investor);
+    event Finalize(uint256 id);
 
     constructor(Token _token, uint256 _quorum) {
         owner = msg.sender;
@@ -69,7 +69,7 @@ contract DAO {
         Proposal storage proposal = proposals[_id];
 
         // Don't let investors vote twice
-        require(!votes[msg.sender][_id], "already voted");
+        require(votes[msg.sender][_id] == false, "already voted");
 
         // update votes
         proposal.votes += token.balanceOf(msg.sender);
@@ -80,5 +80,30 @@ contract DAO {
 
         // Emit an event
         emit Vote(_id, msg.sender);
+    }
+
+    // Finalze proposal & transfer funds
+    function finalizeProposal(uint256 _id) external onlyInvestor {
+        // Fetch proposal 
+        Proposal storage proposal = proposals[_id];
+
+        // Ensure proposal is not already finalized
+        require(proposal.finalized == false, "proposal already finalized");
+
+        // Mark proposal as finalized
+        proposal.finalized = true;
+
+        // Check that proposal has enough votes
+        require(proposal.votes >= quorum, "must reach quorum to finalize proposal");
+
+        // Check that the contract has enough ether
+        require(address(this).balance >= proposal.amount);
+
+        // Transfer the funds to recipient
+        (bool sent, ) = proposal.recipient.call{value: proposal.amount}("");
+        require(sent);
+
+        // Emit event
+        emit Finalize(_id);
     }
 }
