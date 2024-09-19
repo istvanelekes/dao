@@ -4,6 +4,8 @@ import { ethers } from 'ethers'
 
 // Components
 import Navigation from './Navigation';
+import Create from './Create';
+import Proposals from './Proposals';
 import Loading from './Loading';
 
 // ABIs: Import your contract ABIs here
@@ -11,7 +13,6 @@ import DAO_ABI from '../abis/DAO.json'
 
 // Config: Import your network config here
 import config from '../config.json';
-import Proposals from './Proposals';
 
 function App() {
   const [provider, setProvider] = useState(null)
@@ -73,6 +74,11 @@ function App() {
         <Loading />
       ) : (
         <>
+          <Create
+            provider={provider}
+            dao={dao}
+            setIsLoading={setIsLoading}
+          />
           <hr/>
           <p className='text-center'><strong>Treasury Balance:</strong> {treasuryBalance}</p>
           <hr/>
