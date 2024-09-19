@@ -21,6 +21,7 @@ function App() {
 
   const [account, setAccount] = useState(null)
   const [proposals, setProposals] = useState(null)
+  const [balances, setBalances] = useState(null)
   const [quorum, setQuorum] = useState(null)
 
   const [isLoading, setIsLoading] = useState(true)
@@ -46,13 +47,20 @@ function App() {
     //Fetch proposals
     const count = await dao.proposalCount()
     const items = []
+    const balances = []
 
     for (var i = 0; i < count; i++) {
       const proposal = await dao.proposals(i + 1)
+
+      let balance = await provider.getBalance(proposal.recipient)
+      balance = ethers.utils.formatUnits(balance, 'ether')
+
+      balances.push(balance)
       items.push(proposal)
     }
 
     setProposals(items)
+    setBalances(balances)
     setQuorum(await dao.quorum())
 
     setIsLoading(false)
@@ -82,12 +90,16 @@ function App() {
           <hr/>
           <p className='text-center'><strong>Treasury Balance:</strong> {treasuryBalance}</p>
           <hr/>
+          <p className='text-center'><strong>Quorum:</strong> {quorum.toString()}</p>
+          <hr/>
 
           <Proposals
             provider={provider}
             dao={dao}
             proposals={proposals}
+            balances={balances}
             quorum={quorum}
+            account={account}
             setIsLoading={setIsLoading}
           />
         </>

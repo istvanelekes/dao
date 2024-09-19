@@ -12,7 +12,7 @@ contract DAO {
     uint256 public quorum;
     uint256 public proposalCount;
     mapping(uint256 => Proposal) public proposals;
-    mapping(address => mapping(uint256 => bool)) private votes;
+    mapping(address => mapping(uint256 => bool)) public votes;
 
     struct Proposal {
         uint256 id;
@@ -42,7 +42,6 @@ contract DAO {
         require(token.balanceOf(msg.sender) > 0, "must be token holder");
         _;
     }
-
 
     function createProposal(
         string memory _name,
