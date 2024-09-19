@@ -15,6 +15,7 @@ contract DAO {
     struct Proposal {
         uint256 id;
         string name;
+        string description;
         uint256 amount;
         address payable recipient;
         int256 votes;
@@ -42,6 +43,7 @@ contract DAO {
 
     function createProposal(
         string memory _name,
+        string memory _description,
         uint256 _amount,
         address payable _recipient
     ) external onlyInvestor {
@@ -54,6 +56,7 @@ contract DAO {
         proposals[proposalCount] = Proposal(
             proposalCount,
             _name,
+            _description,
             _amount,
             _recipient,
             0,
