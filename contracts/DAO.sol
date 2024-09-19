@@ -1,6 +1,8 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity ^0.8.0;
 
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+
 import "hardhat/console.sol";
 import "./Token.sol";
 
@@ -16,6 +18,7 @@ contract DAO {
         uint256 id;
         string name;
         string description;
+        ERC20 payoutToken;
         uint256 amount;
         address payable recipient;
         int256 votes;
@@ -44,10 +47,12 @@ contract DAO {
     function createProposal(
         string memory _name,
         string memory _description,
+        ERC20 payoutToken,
         uint256 _amount,
         address payable _recipient
     ) external onlyInvestor {
-        require(address(this).balance >= _amount);
+        // require(address(this).balance >= _amount, "ether balance must be bigger than amount");
+        require(payoutToken.balanceOf(address(this)) >= _amount);
 
         proposalCount++;
 
@@ -57,6 +62,7 @@ contract DAO {
             proposalCount,
             _name,
             _description,
+            payoutToken,
             _amount,
             _recipient,
             0,
@@ -100,11 +106,10 @@ contract DAO {
         require(proposal.votes >= int256(quorum), "must reach quorum to finalize proposal");
 
         // Check that the contract has enough ether
-        require(address(this).balance >= proposal.amount);
+        require(proposal.payoutToken.balanceOf(address(this)) >= proposal.amount);
 
         // Transfer the funds to recipient
-        (bool sent, ) = proposal.recipient.call{value: proposal.amount}("");
-        require(sent);
+        require(proposal.payoutToken.transfer(proposal.recipient, proposal.amount));
 
         // Emit event
         emit Finalize(_id);
