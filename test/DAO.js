@@ -123,7 +123,7 @@ describe('DAO', () => {
     describe('Success', () => {
 
       beforeEach(async () => {
-        transaction = await dao.connect(investor1).vote(1)
+        transaction = await dao.connect(investor1).vote(1, true)
         result = await transaction.wait()
       })
 
@@ -136,19 +136,38 @@ describe('DAO', () => {
         await expect(transaction).to.emit(dao, 'Vote')
             .withArgs(1, investor1.address)
       })
+
+      it('down vote by 1', async () => {
+        transaction = await dao.connect(investor2).vote(1, false)
+        result = await transaction.wait()
+
+        const proposal = await dao.proposals(1)
+        expect(proposal.votes).to.equal(tokens(0))
+      })
+
+      it('down vote by 2', async () => {
+        transaction = await dao.connect(investor2).vote(1, false)
+        result = await transaction.wait()
+
+        transaction = await dao.connect(investor3).vote(1, false)
+        result = await transaction.wait()
+
+        const proposal = await dao.proposals(1)
+        expect(proposal.votes).to.equal(tokens(-200000))
+      })
     })
 
     describe('Failure', () => {
 
         it('rejects non-investor', async () => {
-            await expect(dao.connect(user).vote(1)).to.be.reverted
+            await expect(dao.connect(user).vote(1, true)).to.be.reverted
         })
 
         it('rejects double voting', async () => {
-            transaction = await dao.connect(investor1).vote(1)
+            transaction = await dao.connect(investor1).vote(1, false)
             result = await transaction.wait()
 
-            await expect(dao.connect(investor1).vote(1)).to.be.reverted
+            await expect(dao.connect(investor1).vote(1, true)).to.be.reverted
         })
     })
 
@@ -165,13 +184,13 @@ describe('DAO', () => {
         result = await transaction.wait()
 
         // Vote
-        transaction = await dao.connect(investor1).vote(1)
+        transaction = await dao.connect(investor1).vote(1, true)
         result = await transaction.wait()
 
-        transaction = await dao.connect(investor2).vote(1)
+        transaction = await dao.connect(investor2).vote(1, true)
         result = await transaction.wait()
 
-        transaction = await dao.connect(investor3).vote(1)
+        transaction = await dao.connect(investor3).vote(1, true)
         result = await transaction.wait()
 
         // Finalize proposal 
@@ -201,10 +220,10 @@ describe('DAO', () => {
             result = await transaction.wait()
     
             // Vote
-            transaction = await dao.connect(investor1).vote(1)
+            transaction = await dao.connect(investor1).vote(1, true)
             result = await transaction.wait()
     
-            transaction = await dao.connect(investor2).vote(1)
+            transaction = await dao.connect(investor2).vote(1, true)
             result = await transaction.wait()
         })
 
@@ -214,7 +233,7 @@ describe('DAO', () => {
 
         it('rejects finalization from a non-investor', async () => {
             // Vote 3
-            transaction = await dao.connect(investor3).vote(1)
+            transaction = await dao.connect(investor3).vote(1, true)
             result = await transaction.wait()
 
             await expect(dao.connect(user).finalizeProposal(1)).to.be.reverted
@@ -223,7 +242,7 @@ describe('DAO', () => {
         it('rejects proposal if already finalize', async () => {
 
             // Vote 3
-            transaction = await dao.connect(investor3).vote(1)
+            transaction = await dao.connect(investor3).vote(1, true)
             result = await transaction.wait()
             
             // Finalize

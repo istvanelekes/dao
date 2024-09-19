@@ -17,7 +17,7 @@ contract DAO {
         string name;
         uint256 amount;
         address payable recipient;
-        uint256 votes;
+        int256 votes;
         bool finalized;
     }
 
@@ -64,7 +64,7 @@ contract DAO {
         
     }
 
-    function vote(uint256 _id) external onlyInvestor {
+    function vote(uint256 _id, bool _inFavor) external onlyInvestor {
         // Fetch proposal from mapping by id
         Proposal storage proposal = proposals[_id];
 
@@ -72,11 +72,11 @@ contract DAO {
         require(votes[msg.sender][_id] == false, "already voted");
 
         // update votes
-        proposal.votes += token.balanceOf(msg.sender);
+        int256 balance = int256(token.balanceOf(msg.sender));
+        proposal.votes += _inFavor ? balance : -balance;
 
         // Track that user has voted
         votes[msg.sender][_id] = true;
-
 
         // Emit an event
         emit Vote(_id, msg.sender);
@@ -94,7 +94,7 @@ contract DAO {
         proposal.finalized = true;
 
         // Check that proposal has enough votes
-        require(proposal.votes >= quorum, "must reach quorum to finalize proposal");
+        require(proposal.votes >= int256(quorum), "must reach quorum to finalize proposal");
 
         // Check that the contract has enough ether
         require(address(this).balance >= proposal.amount);
