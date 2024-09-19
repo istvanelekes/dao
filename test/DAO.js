@@ -58,10 +58,10 @@ describe('DAO', () => {
     usdc = await USDC.deploy()
 
     // Funder sends 100 Ether to DAO treasury for Governance
-    await funder.sendTransaction({ to: dao.address, value: ether(100) })
+    // await funder.sendTransaction({ to: dao.address, value: ether(100) })
+    
     transaction = await usdc.connect(deployer).mint(dao.address, 20000)
     await transaction.wait()
-
   })
 
   describe('Deployment', () => {

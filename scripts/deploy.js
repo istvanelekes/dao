@@ -24,6 +24,13 @@ async function main() {
   await dao.deployed()
 
   console.log(`DAO deployed to: ${dao.address}\n`)
+
+  // Deploy USDC
+  const USDC = await hre.ethers.getContractFactory("UsdCoin")
+  const usdc = await USDC.deploy()
+  await usdc.deployed()
+
+  console.log(`USDC deployed to: ${usdc.address}\n`)
 }
 
 // We recommend this pattern to be able to use async/await everywhere

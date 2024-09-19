@@ -48,26 +48,34 @@ async function main() {
     const dao = await ethers.getContractAt('DAO', config[chainId].dao.address)
     console.log(`DAO fetched: ${dao.address}\n`)
 
+    // Fetch deployed USDC
+    const usdc = await ethers.getContractAt("UsdCoin", config[chainId].usdc.address)
+    console.log(`USDC fetched: ${usdc.address}\n`)
+
     // Funder sends 1000 Ether to DAO treasury for Governance
     transaction = await funder.sendTransaction({ to: dao.address, value: ether(1000) })
     await transaction.wait()
+
+    transaction = await usdc.connect(funder).mint(dao.address, 20000)
+    await transaction.wait()
+
     console.log(`Sent fund to dao treasury...\n`)
 
     for (let i = 0; i < 3; i++) {
         // Create proposal
-        transaction = await dao.connect(investor1).createProposal(`Proposal ${i + 1}`, tokens(100), recipient.address)
+        transaction = await dao.connect(investor1).createProposal(`Proposal ${i + 1}`, `Proposal description ${i + 1}`, usdc.address, 2000, recipient.address)
         await transaction.wait()
 
         // Vote 1
-        transaction = await dao.connect(investor1).vote(i + 1)
+        transaction = await dao.connect(investor1).vote(i + 1, true)
         await transaction.wait()
 
         // Vote 2
-        transaction = await dao.connect(investor2).vote(i + 1)
+        transaction = await dao.connect(investor2).vote(i + 1, true)
         await transaction.wait()
 
         // Vote 3
-        transaction = await dao.connect(investor3).vote(i + 1)
+        transaction = await dao.connect(investor3).vote(i + 1, true)
         await transaction.wait()
 
         // Finalize
@@ -79,13 +87,13 @@ async function main() {
 
     console.log(`Creating one more proposal... \n`)
 
-    transaction = await dao.connect(investor1).createProposal(`Proposal 4`, tokens(100), recipient.address)
+    transaction = await dao.connect(investor1).createProposal(`Proposal 4`, `Proposal 4 description`, usdc.address, 2000, recipient.address)
     await transaction.wait()
 
-    transaction = await dao.connect(investor2).vote(4)
+    transaction = await dao.connect(investor2).vote(4, true)
     await transaction.wait()
 
-    transaction = await dao.connect(investor3).vote(4)
+    transaction = await dao.connect(investor3).vote(4, true)
     await transaction.wait()
 
     console.log(`Finished \n`)
