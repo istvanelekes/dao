@@ -12,7 +12,7 @@ contract DAO {
     uint256 public quorum;
     uint256 public proposalCount;
     mapping(uint256 => Proposal) public proposals;
-    mapping(address => mapping(uint256 => bool)) public votes;
+    mapping(address => mapping(uint256 => bool)) private votes;
 
     struct Proposal {
         uint256 id;
@@ -70,6 +70,10 @@ contract DAO {
 
         emit Propose(proposalCount, _amount, _recipient, msg.sender);
         
+    }
+
+    function isVoted(address account, uint256 _id) external view returns(bool) {
+        return votes[account][_id];
     }
 
     function vote(uint256 _id, bool _inFavor) external onlyInvestor {

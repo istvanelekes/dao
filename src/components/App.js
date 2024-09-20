@@ -22,6 +22,8 @@ function App() {
   const [account, setAccount] = useState(null)
   const [proposals, setProposals] = useState(null)
   const [balances, setBalances] = useState(null)
+  const [voted, setVoted] = useState(null)
+
   const [quorum, setQuorum] = useState(null)
 
   const [isLoading, setIsLoading] = useState(true)
@@ -48,19 +50,25 @@ function App() {
     const count = await dao.proposalCount()
     const items = []
     const balances = []
+    const voted = []
 
     for (var i = 0; i < count; i++) {
       const proposal = await dao.proposals(i + 1)
+      // FIXME: can't read from contract: isVoted 
+      // const isVoted = await dao.isVoted(account, i + 1)
+      const isVoted = false
 
       let balance = await provider.getBalance(proposal.recipient)
       balance = ethers.utils.formatUnits(balance, 'ether')
 
-      balances.push(balance)
       items.push(proposal)
+      balances.push(balance)
+      voted.push(isVoted)
     }
 
     setProposals(items)
     setBalances(balances)
+    setVoted(voted)
     setQuorum(await dao.quorum())
 
     setIsLoading(false)
@@ -99,7 +107,7 @@ function App() {
             proposals={proposals}
             balances={balances}
             quorum={quorum}
-            account={account}
+            voted={voted}
             setIsLoading={setIsLoading}
           />
         </>

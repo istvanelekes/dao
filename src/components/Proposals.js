@@ -2,7 +2,7 @@ import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
 import { ethers } from 'ethers'
 
-const Proposals = ({ provider, dao, proposals, balances, quorum, account, setIsLoading }) => {
+const Proposals = ({ provider, dao, proposals, balances, quorum, voted, setIsLoading }) => {
     const voteHandler = async (id) => {
         try {
             const signer = await provider.getSigner()
@@ -33,12 +33,6 @@ const Proposals = ({ provider, dao, proposals, balances, quorum, account, setIsL
         return balance
     }
 
-    function voted(index) {
-        // FIXME: something wrong with the DAO_ABI, votes are not visible 
-        // const voted = await dao.votes[account][index]
-        return false
-    }
-
     return (
         <Table striped bordered hover responsive>
           <thead>
@@ -65,7 +59,7 @@ const Proposals = ({ provider, dao, proposals, balances, quorum, account, setIsL
                 <td>{proposal.finalized ? "Approved" : "In Progress"}</td>
                 <td>{proposal.votes.toString()}</td>
                 <td>
-                    {!proposal.finalized && !voted(index) && (
+                    {!proposal.finalized && !voted[index] && (
                         <Button 
                             variant='primary'
                             style={{ width: '100%'}}
