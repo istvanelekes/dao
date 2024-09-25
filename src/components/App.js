@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Container } from 'react-bootstrap'
+import { Container, Row, Col } from 'react-bootstrap'
 import { ethers } from 'ethers'
 
 // Components
@@ -88,16 +88,20 @@ function App() {
         <Loading />
       ) : (
         <>
-          <Create
-            provider={provider}
-            dao={dao}
-            setIsLoading={setIsLoading}
-          />
-          <hr/>
-          <p className='text-center'><strong>Treasury Balance:</strong> {treasuryBalance}</p>
-          <hr/>
-          <p className='text-center'><strong>Quorum:</strong> {quorum.toString()}</p>
-          <hr/>
+          <Row>
+            <Col>
+              <Create
+                provider={provider}
+                dao={dao}
+                setIsLoading={setIsLoading}
+              />
+            </Col>
+
+            <Col>
+              <p className='text-center'><strong>Treasury Balance:</strong> {treasuryBalance}</p>
+              <p className='text-center'><strong>Quorum:</strong> {quorum.toString()}</p>
+            </Col>
+          </Row>
 
           <Proposals
             provider={provider}
