@@ -4,6 +4,8 @@ import Button from 'react-bootstrap/Button';
 import Spinner from 'react-bootstrap/Spinner';
 import { ethers } from 'ethers'
 
+const config = require('../config.json')
+
 const Create = ({ provider, dao, setIsLoading }) => {
     const [name, setName] = useState('')
     const [amount, setAmount] = useState(0)
@@ -16,9 +18,10 @@ const Create = ({ provider, dao, setIsLoading }) => {
 
         try {
             const signer = await provider.getSigner()
-            const formattedAmount = ethers.utils.parseUnits(amount.toString(), 'ether')
+            // uncomment this if you want to pay out in ether
+            // const formattedAmount = ethers.utils.parseUnits(amount.toString(), 'ether')
 
-            const transaction = await dao.connect(signer).createProposal(name, formattedAmount, address)
+            const transaction = await dao.connect(signer).createProposal(name, "Prop description", config[31337].usdc.address, amount, address)
             await transaction.wait()
         } catch {
             window.alert("User rejected or transaction reverted")

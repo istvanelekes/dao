@@ -6,7 +6,7 @@ const Proposals = ({ provider, dao, proposals, balances, quorum, voted, setIsLoa
     const voteHandler = async (id) => {
         try {
             const signer = await provider.getSigner()
-            const transaction = await dao.connect(signer).vote(id)
+            const transaction = await dao.connect(signer).vote(id, true)
             await transaction.wait()
         } catch {
             window.alert("User rejected or transaction reverted")

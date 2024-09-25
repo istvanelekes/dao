@@ -54,9 +54,7 @@ function App() {
 
     for (var i = 0; i < count; i++) {
       const proposal = await dao.proposals(i + 1)
-      // FIXME: can't read from contract: isVoted 
-      // const isVoted = await dao.isVoted(account, i + 1)
-      const isVoted = false
+      const isVoted = await dao.isVoted(account, i + 1)
 
       let balance = await provider.getBalance(proposal.recipient)
       balance = ethers.utils.formatUnits(balance, 'ether')

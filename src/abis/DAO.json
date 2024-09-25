@@ -86,6 +86,16 @@
         "type": "string"
       },
       {
+        "internalType": "string",
+        "name": "_description",
+        "type": "string"
+      },
+      {
+        "internalType": "contract ERC20",
+        "name": "payoutToken",
+        "type": "address"
+      },
+      {
         "internalType": "uint256",
         "name": "_amount",
         "type": "uint256"
@@ -170,6 +180,16 @@
         "internalType": "string",
         "name": "name",
         "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "description",
+        "type": "string"
+      },
+      {
+        "internalType": "contract ERC20",
+        "name": "payoutToken",
+        "type": "address"
       },
       {
         "internalType": "uint256",
